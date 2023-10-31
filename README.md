@@ -1,4 +1,4 @@
-# Graph ADT Example Program
+# Graph ADT
 
 ## Overview
 
