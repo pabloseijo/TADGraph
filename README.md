@@ -1,2 +1,2 @@
 # TAD Graph
-A simple program that uses the TAD graph in c
+A simple program that uses the TAD graph in c usin CLion
