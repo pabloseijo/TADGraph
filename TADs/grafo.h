@@ -55,11 +55,23 @@ void crear_arco_carretera(grafo *G, int pos1, int pos2, float distancia);
 //Borra el arco de relación entre VERTICES(pos1) y VERTICES(pos2) en la carretera
 void borrar_arco_carretera(grafo *G, int pos1, int pos2);
 
-//Devuelve 1 si VERTICES(pos1) y VERTICES(pos2) son vértices adyacentes
-int son_adyacentes_autopista(grafo G, int pos1, int pos2);
+/**
+ * Devuelve la distancia entre dos vertices
+ * @param G - Grafo
+ * @param pos1 - Posicion del vertice 1
+ * @param pos2 - Posicion del vertice 2
+ * @return
+ */
+float son_adyacentes_autopista(grafo G, int pos1, int pos2);
 
-//Devuelve 1 si VERTICES(pos1) y VERTICES(pos2) son vértices adyacentes
-int son_adyacentes_carretera(grafo G, int pos1, int pos2);
+/**
+ * Devuelve la distancia entre dos vertices
+ * @param G - Grafo
+ * @param pos1  - Posicion del vertice 1
+ * @param pos2 - Posicion del vertice 2
+ * @return
+ */
+float son_adyacentes_carretera(grafo G, int pos1, int pos2);
 
 //Destruye el grafo
 void borrar_grafo(grafo *G);

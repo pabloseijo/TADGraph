@@ -120,21 +120,27 @@ void borrar_arco_carretera(grafo *G, int pos1, int pos2) {
     (*G)->C[pos2][pos1] = 0;
 }
 
-//Devuelve 1 si VERTICES(pos1) y VERTICES(pos2) son vértices adyacentes
-int son_adyacentes_autopista(grafo G, int pos1, int pos2) {
+/**
+ * Devuelve la distancia entre dos vertices
+ * @param G
+ * @param pos1
+ * @param pos2
+ * @return
+ */
+float son_adyacentes_autopista(grafo G, int pos1, int pos2) {
     if(G->A[pos1][pos2] == 0){
         return 0;
     } else {
-        return 1;
+        return G->A[pos1][pos2];
     }
 }
 
 //Devuelve 1 si VERTICES(pos1) y VERTICES(pos2) son vértices adyacentes
-int son_adyacentes_carretera(grafo G, int pos1, int pos2) {
+float son_adyacentes_carretera(grafo G, int pos1, int pos2) {
     if(G->C[pos1][pos2] == 0){
     	return 0;
     } else {
-    	return 1;
+    	return G->C[pos1][pos2];
     }
 }
 

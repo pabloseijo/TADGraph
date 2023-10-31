@@ -30,10 +30,26 @@ void nuevo_arco(grafo *G);
 void eliminar_arco(grafo *G);
 
 /**
+ * Función que carga el grafo desde un archivo
+ * @param G - Grafo
+ * @param argc - numero de parametros que se pasaron por linea de comandos
+ * @param argv - puntero a array que contiene la informacion pasada por linea de comandos
+ */
+void cargar_grafo(grafo *G , int argc , char ** argv);
+
+/**
  * imprimir el grafo
  * @param G
  */
 void imprimir_grafo(grafo G);
+
+/**
+ * Actualizar los datos del archivo en funcion de los del grafo
+ * @param G - Grafo
+ * @param argc - numero de parametros que se pasaron por linea de comandos
+ * @param argv - puntero a array que contiene la informacion pasada por linea de comandos
+ */
+void actualizar_archivo(grafo G, int argc , char ** argv);
 
 
 #endif	/* FUNCIONES_H */

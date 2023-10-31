@@ -13,8 +13,12 @@ int main(int argc, char** argv) {
 
     //Creo el grafo
     crear_grafo(&G);
+
+    //Cargo el grafo desde un archivo (si se ha pasado por linea de comandos)
+    cargar_grafo(&G, argc, argv);
+
     do {
-        printf("\n\na. Insertar nuevos vertices\n");
+        printf("\na. Insertar nuevos vertices\n");
         printf("b. Eliminar vertice\n");
         printf("c. Crear Arco (Carretera o Autopista)\n");
         printf("e. Eliminar Arco (Carretera o Autopista)\n");
@@ -46,6 +50,9 @@ int main(int argc, char** argv) {
                 printf("Opción equivocada\n");
         }
     } while (opcion != 's');
+
+    //Actualizo el archivo con los datos del grafo
+    actualizar_archivo(G, argc, argv);
 
     //Al salir, liberamos la memoria del TAD, lo destruimos
     borrar_grafo(&G);

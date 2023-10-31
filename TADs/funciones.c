@@ -191,7 +191,6 @@ void eliminar_arco(grafo *G) {
     }
 }
 
-
 /**
  * Opción i del menú, imprimir el grafo
  * @param G
@@ -211,14 +210,114 @@ void imprimir_grafo(grafo G) {
         printf("Vertice(%d): %s\n", i, VECTOR[i].nombrePoblacion);
         //Chequeo sus arcos y los imprimo
         for (j = 0; j < N; j++) {
-            if (son_adyacentes_autopista(G, i, j)) {
-                printf("\tAutopista: %s --> %s\n", VECTOR[i].nombrePoblacion, VECTOR[j].nombrePoblacion);
+            if (son_adyacentes_autopista(G, i, j) != 0) {
+                printf("\tAutopista: %s --> %s; %.2f\n", VECTOR[i].nombrePoblacion, VECTOR[j].nombrePoblacion, son_adyacentes_autopista(G, i, j));
             }
 
-            if (son_adyacentes_carretera(G, i, j)) {
-                printf("\tCarretera: %s --> %s\n", VECTOR[i].nombrePoblacion, VECTOR[j].nombrePoblacion);
+            if (son_adyacentes_carretera(G, i, j) != 0) {
+                printf("\tCarretera: %s --> %s; %.2f\n", VECTOR[i].nombrePoblacion, VECTOR[j].nombrePoblacion, son_adyacentes_carretera(G, i, j));
             }
         }
     }
+}
+
+/**
+ * Función que carga el grafo desde un archivo
+ * @param G - Grafo
+ * @param argc - numero de parametros que se pasaron por linea de comandos
+ * @param argv - puntero a array que contiene la informacion pasada por linea de comandos
+ */
+void cargar_grafo(grafo *G , int argc , char ** argv){
+    //Declaramos las variables necesarias;
+    FILE *f;
+    tipovertice v1, v2;
+    char tipoConexion[20];
+    float distancia;
+
+    // Si el numero de parametros es menor que dos salimos de la funcion
+    if(argc < 2){
+        return;
+    }
+
+    //Abrimos el archivo
+    if((f = fopen(argv[1], "r")) == NULL){
+        printf("Error al abrir el archivo\n");
+        return;
+    }
+
+    //Mientras no llegue al final del archivo, vamos leyendo los datos
+    while(!feof(f)) {
+        printf("hola\n");
+        //Leemos los datos
+        fscanf(f, "%[^-]-->%[^;];%f;%s\n", v1.nombrePoblacion, v2.nombrePoblacion, &distancia, tipoConexion);
+
+        printf("%s || %s || %s\n", v1.nombrePoblacion, v2.nombrePoblacion, tipoConexion);
+
+        if (existe_vertice(*G, v1) == 0) {
+            insertar_vertice(G, v1);
+        }
+        if (existe_vertice(*G, v2) == 0) {
+            insertar_vertice(G, v2);
+        }
+
+        //Si el vertice no existe, lo insertamos
+        if(strcmp(tipoConexion,"autopista") == 0){
+            crear_arco_autopista(G, posicion(*G, v1), posicion(*G, v2), distancia);
+        }
+        else if(strcmp(tipoConexion,"carretera") == 0){
+            crear_arco_carretera(G, posicion(*G, v1), posicion(*G, v2), distancia);
+        }
+        else{
+            continue;
+        }
+    }
+
+    //Cerramos el archivo
+    fclose(f);
+}
+
+/**
+ * Actualizar los datos del archivo en funcion de los del grafo
+ * @param G - Grafo
+ * @param argc - numero de parametros que se pasaron por linea de comandos
+ * @param argv - puntero a array que contiene la informacion pasada por linea de comandos
+ */
+void actualizar_archivo(grafo G, int argc , char ** argv){
+    //Declaramos las variables necesarias;
+    FILE *f;
+    char nombreArchivo[20];
+
+    // Si el numero de parametros es menor que dos salimos de la funcion
+    if(argc < 2){
+        strcpy(nombreArchivo, "grafo.txt");
+    }
+    else{
+        strcpy(nombreArchivo, argv[1]);
+    }
+
+    //Abrimos el archivo
+    if((f = fopen(nombreArchivo, "w")) == NULL){
+        printf("Error al abrir el archivo\n");
+        return;
+    }
+
+    //Recorremos el grafo
+    for(int i = 0 ; i < num_vertices(G) ; i++){
+        //Recorremos los arcos de cada vertice
+        for(int j = 0 ; j < num_vertices(G) ; j++){
+            //Si son adyacentes, obtenemos la distancia y el tipo de conexion y lo escribimos en el archivo
+            if(son_adyacentes_autopista(G, i, j) != 0){
+                fprintf(f, "%s-->%s;%.2f;autopista\n", array_vertices(G)[i].nombrePoblacion, array_vertices(G)[j].nombrePoblacion,
+                        son_adyacentes_autopista(G, i, j));
+            }
+            else if(son_adyacentes_carretera(G, i, j) != 0){
+                fprintf(f, "%s-->%s;%.2f;carretera\n", array_vertices(G)[i].nombrePoblacion, array_vertices(G)[j].nombrePoblacion,
+                        son_adyacentes_carretera(G, i, j));
+            }
+        }
+    }
+
+    //Cerramos el archivo
+    fclose(f);
 }
 

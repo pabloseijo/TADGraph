@@ -1,0 +1,2 @@
+Ferrol-->Santiago;120.00;autopista
+Santiago-->Ferrol;120.00;autopista
