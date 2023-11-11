@@ -17,7 +17,7 @@ typedef struct{
     char nombrePoblacion[MAXNOMBRE];
 }tipovertice;
 
-typedef struct tipografo * grafo;
+typedef struct tipografo *grafo;
 
 //////////////////////////////////////////////////////////////// FUNCIONES
 

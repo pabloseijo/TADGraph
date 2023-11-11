@@ -51,6 +51,12 @@ void imprimir_grafo(grafo G);
  */
 void actualizar_archivo(grafo G, int argc , char ** argv);
 
+/**
+ * Función que calcula la ruta más corta entre dos ciudades
+ * @param G - Grafo
+ */
+void Floyd_Warshall (grafo G, char opcion);
+
 
 #endif	/* FUNCIONES_H */
 

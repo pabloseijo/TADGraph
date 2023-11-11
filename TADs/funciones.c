@@ -3,6 +3,9 @@
 #include "grafo.h"
 #include <string.h>
 
+#define INF INT16_MAX // Un valor grande para representar la ausencia de camino
+
+
 //FUNCIONES DEL PROGRAMA DE PRUEBA DE GRAFOS
 
 /**
@@ -107,7 +110,7 @@ void nuevo_arco(grafo *G) {
         }
         // Introducimos la distancia a la que se encuentran los dos vertices
         printf("\tIntroduce la distancia: ");
-        scanf("%f", &distancia);
+        scanf(" %f", &distancia);
 
         //Si el usuario ha elegido crear una autopista, comprobamos que no exista ya y si no existe, la creamos
         if (eleccion == 'A' || eleccion == 'a') {
@@ -211,11 +214,11 @@ void imprimir_grafo(grafo G) {
         //Chequeo sus arcos y los imprimo
         for (j = 0; j < N; j++) {
             if (son_adyacentes_autopista(G, i, j) != 0) {
-                printf("\tAutopista: %s --> %s; %.2f\n", VECTOR[i].nombrePoblacion, VECTOR[j].nombrePoblacion, son_adyacentes_autopista(G, i, j));
+                printf("\t==> %s (%.2f km)\n", VECTOR[j].nombrePoblacion, son_adyacentes_autopista(G, i, j));
             }
 
             if (son_adyacentes_carretera(G, i, j) != 0) {
-                printf("\tCarretera: %s --> %s; %.2f\n", VECTOR[i].nombrePoblacion, VECTOR[j].nombrePoblacion, son_adyacentes_carretera(G, i, j));
+                printf("\t--> %s (%.2f km)\n", VECTOR[j].nombrePoblacion, son_adyacentes_carretera(G, i, j));
             }
         }
     }
@@ -231,8 +234,9 @@ void cargar_grafo(grafo *G , int argc , char ** argv){
     //Declaramos las variables necesarias;
     FILE *f;
     tipovertice v1, v2;
-    char tipoConexion[20];
+    char tipoConexion[20], aux[20];
     float distancia;
+
 
     // Si el numero de parametros es menor que dos salimos de la funcion
     if(argc < 2){
@@ -245,13 +249,20 @@ void cargar_grafo(grafo *G , int argc , char ** argv){
         return;
     }
 
+    // Mover el indicador de archivo al final del archivo
+    fseek(f, 0, SEEK_END);
+    // Comprobar si el archivo está vacío
+    if (ftell(f) == 0) {
+        fclose(f);
+        return;
+    }
+    // Mover el indicador de archivo al inicio del archivo para comenzar a leer
+    rewind(f);
+
     //Mientras no llegue al final del archivo, vamos leyendo los datos
     while(!feof(f)) {
-        printf("hola\n");
         //Leemos los datos
-        fscanf(f, "%[^-]-->%[^;];%f;%s\n", v1.nombrePoblacion, v2.nombrePoblacion, &distancia, tipoConexion);
-
-        printf("%s || %s || %s\n", v1.nombrePoblacion, v2.nombrePoblacion, tipoConexion);
+        fscanf(f, "%[^-=]%[^ ] %[^;];%f;%s\n", v1.nombrePoblacion, aux,v2.nombrePoblacion, &distancia, tipoConexion);
 
         if (existe_vertice(*G, v1) == 0) {
             insertar_vertice(G, v1);
@@ -307,11 +318,11 @@ void actualizar_archivo(grafo G, int argc , char ** argv){
         for(int j = 0 ; j < num_vertices(G) ; j++){
             //Si son adyacentes, obtenemos la distancia y el tipo de conexion y lo escribimos en el archivo
             if(son_adyacentes_autopista(G, i, j) != 0){
-                fprintf(f, "%s-->%s;%.2f;autopista\n", array_vertices(G)[i].nombrePoblacion, array_vertices(G)[j].nombrePoblacion,
+                fprintf(f, "%s=> %s;%.2f;autopista\n", array_vertices(G)[i].nombrePoblacion, array_vertices(G)[j].nombrePoblacion,
                         son_adyacentes_autopista(G, i, j));
             }
-            else if(son_adyacentes_carretera(G, i, j) != 0){
-                fprintf(f, "%s-->%s;%.2f;carretera\n", array_vertices(G)[i].nombrePoblacion, array_vertices(G)[j].nombrePoblacion,
+            if(son_adyacentes_carretera(G, i, j) != 0){
+                fprintf(f, "%s-> %s;%.2f;carretera\n", array_vertices(G)[i].nombrePoblacion, array_vertices(G)[j].nombrePoblacion,
                         son_adyacentes_carretera(G, i, j));
             }
         }
@@ -320,4 +331,225 @@ void actualizar_archivo(grafo G, int argc , char ** argv){
     //Cerramos el archivo
     fclose(f);
 }
+
+/**
+ * Funcion que imprime la ruta mas corta entre dos ciudades
+ * @param G - Grafo
+ * @param P - Matriz de vértices previos
+ * @param origen - Ciudad de origen
+ * @param destino - Ciudad de destino
+ * @param VECTOR - Vector de vértices del grafo
+ * @param factorA - Factor de escala para autopistas
+ * @param factorC - Factor de escala para carreteras
+ */
+void imprimir_camino(grafo G, int P[MAXVERTICES][MAXVERTICES], int origen, int destino, tipovertice *VECTOR, float factorA, float factorC) {
+    if (origen != destino) {
+        imprimir_camino(G, P, origen, P[origen][destino], VECTOR, factorA, factorC); // Llamada recursiva al siguiente vértice en la ruta
+    }
+
+        // Ahora se imprime la conexión con el destino final, pero se debería imprimir después de la llamada recursiva
+    if(son_adyacentes_autopista(G,P[origen][destino], destino) != 0 && son_adyacentes_carretera(G,P[origen][destino],destino) != 0){
+        if(son_adyacentes_autopista(G,P[origen][destino],destino) * factorA < son_adyacentes_carretera(G,P[origen][destino],destino) * factorC){
+            printf("=> %s ", VECTOR[destino].nombrePoblacion); // Conexión por autopista
+        }
+        else{
+            printf("-> %s ", VECTOR[destino].nombrePoblacion); // Conexión por carretera
+        }
+    }
+    else if (son_adyacentes_autopista(G, P[origen][destino], destino) != 0) {
+        printf("=> %s ", VECTOR[destino].nombrePoblacion); // Conexión por autopista
+    } else if (son_adyacentes_carretera(G, P[origen][destino], destino) != 0) {
+        printf("-> %s ", VECTOR[destino].nombrePoblacion); // Conexión por carretera
+    } else {
+        // Esto solo debería ocurrir si hay un error, ya que siempre debería haber una conexión entre los nodos de la ruta
+        printf(" %s ", VECTOR[destino].nombrePoblacion); // Sin conexión conocida
+    }
+}
+
+/**
+ * Funcion que suma la distancia de la ruta mas corta entre dos ciudades
+ * @param G - Grafo
+ * @param P - Matriz de vértices previos
+ * @param origen - Ciudad de origen
+ * @param destino - Ciudad de destino
+ * @param VECTOR - Vector de vértices del grafo
+ * @param factorA - Factor de escala para autopistas
+ * @param factorC - Factor de escala para carreteras
+ * @return Distancia/Coste/Tiempo total de la ruta
+ */
+float sumar_camino(grafo G, int P[MAXVERTICES][MAXVERTICES], int origen, int destino, tipovertice *VECTOR, float factorA, float factorC ) {
+
+    float distancia = 0.0;
+
+    if (origen != destino) {
+        distancia += sumar_camino(G, P, origen, P[origen][destino], VECTOR, factorA, factorC); // Llamada recursiva al siguiente vértice en la ruta
+    }
+
+    // Ahora se imprime la conexión con el destino final, pero se debería imprimir después de la llamada recursiva
+    if(son_adyacentes_autopista(G,P[origen][destino], destino) != 0 && son_adyacentes_carretera(G,P[origen][destino],destino) != 0){
+        if(son_adyacentes_autopista(G,P[origen][destino],destino) * factorA < son_adyacentes_carretera(G,P[origen][destino],destino) * factorC){
+            distancia += son_adyacentes_autopista(G, P[origen][destino], destino) * factorA; // Conexión por autopista
+        }
+        else{
+            distancia += son_adyacentes_carretera(G, P[origen][destino], destino) * factorC; // Conexión por carretera
+        }
+    }
+    else if (son_adyacentes_autopista(G, P[origen][destino], destino) != 0) {
+        distancia += son_adyacentes_autopista(G, P[origen][destino], destino) * factorA; // Conexión por autopista
+    } else if (son_adyacentes_carretera(G, P[origen][destino], destino) != 0) {
+        distancia += son_adyacentes_carretera(G, P[origen][destino], destino) * factorC; // Conexión por carretera
+    } else {
+        // Esto solo debería ocurrir si hay un error, ya que siempre debería haber una conexión entre los nodos de la ruta
+        distancia += 0; // Sin conexión conocida
+    }
+
+    return distancia;
+}
+
+/**
+ * Función que calcula la ruta más corta entre dos ciudades
+ * @param G - Grafo
+ */
+void Floyd_Warshall (grafo G, char opcion){
+
+    /* DECLARACION DE VARIABLES */
+    // Matriz de distancias
+    float D[MAXVERTICES][MAXVERTICES];
+    // Matriz de vértices previos
+    int P[MAXVERTICES][MAXVERTICES];
+    // Variables auxiliares para los bucles
+    int i, j, k;
+    //Inicializamos las variables de escala
+    float factorA = 0, factorC = 0;
+
+    tipovertice v1, v2; // Vértices origen y destino del arco
+    int N = num_vertices(G); // Número de vértices del grafo
+    tipovertice *VECTOR = array_vertices(G); // Vector de vértices del grafo
+
+    // Establecer factores de escala según el tipo de grafo
+    switch (opcion) {
+        case 'f': case 'F':
+            factorA = 1.0;
+            factorC = 1.0;
+            break;
+        case 'g': case 'G':
+            factorA = 1.0 / 120.0;
+            factorC = 1.0 / 70.0;
+            break;
+        case 'h': case 'H':
+            factorA = 1.0 * 0.07;
+            factorC = 1.0 * 0.01;
+            break;
+        default:
+            // Manejar casos no válidos o asignar valores predeterminados
+            factorA = 1.0;
+            factorC = 1.0;
+            break;
+    }
+
+    // Inicialización de las matrices D y P
+    for (i = 0; i < N; i++) {
+        for (j = 0; j < N; j++) {
+            // Si i == j, la distancia es 0 y no hay vértice previo
+            if (i == j) {
+                D[i][j] = 0;
+                P[i][j] = -1; // No hay vértice previo para el mismo nodo
+            }
+            else if(son_adyacentes_autopista(G,i,j) != 0 && son_adyacentes_carretera(G,i,j) != 0){
+                if(son_adyacentes_autopista(G,i,j) * factorA < son_adyacentes_carretera(G,i,j) * factorC){
+                    D[i][j] = son_adyacentes_autopista(G,i,j) * factorA; // Distancia directa de i a j
+                    P[i][j] = i; // El vértice previo es i mismo
+                }
+                else{
+                    D[i][j] = son_adyacentes_carretera(G,i,j) * factorC; // Distancia directa de i a j
+                    P[i][j] = i; // El vértice previo es i mismo
+                }
+            }
+            // Sino, si son adyacentes por carretera, la distancia es la directa
+            else if (son_adyacentes_carretera(G,i,j) != 0) {
+                D[i][j] = son_adyacentes_carretera(G,i,j) * factorC; // Distancia directa de i a j
+                P[i][j] = i; // El vértice previo es i mismo
+            }
+            // Sino, si son adyacentes por autopista, la distancia es la directa
+            else if (son_adyacentes_autopista(G,i,j) != 0) {
+                D[i][j] = son_adyacentes_autopista(G,i,j) * factorA; // Distancia directa de i a j
+                P[i][j] = i; // El vértice previo es i mismo
+            }
+            // Sino, no hay conexión directa
+            else {
+                D[i][j] = INF; // No hay conexión directa
+                P[i][j] = -1;
+            }
+        }
+    }
+
+    // Algoritmo de Floyd-Warshall
+    for (k = 0; k < N; k++) {
+        // Actualizar las matrices D y P
+        for (i = 0; i < N; i++) {
+            for (j = 0; j < N; j++) {
+                // Si la distancia de i a j es mayor que la de i a k más la de k a j y no son infinitas las distancias
+                // de i a k y de k a j, actualizamos la distancia de i a j y el vértice previo
+                if (D[i][k] != INF && D[k][j] != INF && D[i][j] > D[i][k] + D[k][j]) {
+                    D[i][j] = D[i][k] + D[k][j]; // Actualizar la distancia
+                    P[i][j] = P[k][j]; // Actualizar el vértice previo
+                }
+            }
+        }
+    }
+
+    /* PREGUNTAMOS AL USUARIO */
+
+    //Vértice origen del arco
+    printf("Introduce vertice origen: ");
+    scanf(" %[^\r\n]", v1.nombrePoblacion);
+    if (!existe_vertice(G, v1)) {
+        printf("El vertice %s no existe en el grafo\n", v1.nombrePoblacion);
+        return;
+    }
+
+    //Vértice destino del arco
+    printf("Introduce vertice destino: ");
+    scanf(" %[^\r\n]", v2.nombrePoblacion);
+    if (!existe_vertice(G, v2)) {
+        printf("El vertice %s no existe en el grafo\n", v2.nombrePoblacion);
+        return;
+    }
+
+    /* IMPRIMIMOS */
+
+    // Establecer factores de escala según el tipo de grafo
+    switch (opcion) {
+        case 'f': case 'F':
+            printf("La ruta mas corta entre %s y %s es de %.2f km\n", v1.nombrePoblacion, v2.nombrePoblacion,
+                   sumar_camino(G, P, posicion(G, v1), posicion(G, v2), VECTOR, factorA, factorC));
+            printf("\tRuta: ");
+            imprimir_camino(G, P, posicion(G, v1), posicion(G, v2), VECTOR, factorA, factorC);
+            printf("\n");
+            break;
+        case 'g': case 'G':
+            printf("La ruta mas rapida entre %s y %s es de %.2f horas\n", v1.nombrePoblacion, v2.nombrePoblacion,
+                   sumar_camino(G, P, posicion(G, v1), posicion(G, v2), VECTOR, factorA, factorC ));
+            printf("\tRuta: ");
+            imprimir_camino(G, P, posicion(G, v1), posicion(G, v2), VECTOR, factorA, factorC);
+            printf("\n");
+            break;
+        case 'h': case 'H':
+            printf("La ruta mas economica entre %s y %s es de %.2f €\n", v1.nombrePoblacion, v2.nombrePoblacion,
+                   sumar_camino(G, P, posicion(G, v1), posicion(G, v2), VECTOR, factorA, factorC));
+            printf("\tRuta: ");
+            imprimir_camino(G, P, posicion(G, v1), posicion(G, v2), VECTOR, factorA, factorC);
+            printf("\n");
+            break;
+        default:
+            imprimir_camino(G, P, posicion(G, v1), posicion(G, v2), VECTOR, factorA, factorC);
+            printf("\n");
+            break;
+    }
+
+
+
+}
+
+
 
