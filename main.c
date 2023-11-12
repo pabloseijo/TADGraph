@@ -65,6 +65,11 @@ int main(int argc, char** argv) {
                 Floyd_Warshall(G, opcion);
                 break;
 
+            case 'j': case 'J':
+                printf("Si calculo el arbol de expresion que conecta todas las ciudades con el minimo valor global de tiempo:\n");
+                Prim(G);
+                break;
+
             case 's': case 'S':
                 opcion='s';
                 break;

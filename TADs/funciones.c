@@ -551,5 +551,92 @@ void Floyd_Warshall (grafo G, char opcion){
 
 }
 
+/**
+ * Función que la minima ruta de conexion para que todas las ciudades esten conectadas
+ * @param G - Grafo
+ */
+void Prim(grafo G){
+    /* DECLARACION DE VARIABLES */
 
+    int numArcos = 0; // Número de arcos del grafo
+    float distanciaTotal = 0; // Distancia total de la ruta
+    int numVertices = num_vertices(G); // Número de vértices del grafo
+    int i, j; // Variables auxiliares para los bucles
 
+    char *tipo; // Tipo de conexión
+    tipo = (char *) malloc(2 * sizeof(char)); // Reservamos memoria para el tipo de conexión
+
+    float factorA = 1.0/120.0, factorC = 1.0/70.0; // Factores de escala para autopistas y carreteras
+
+    int Selected[numVertices]; // Array de vértices seleccionados
+    for (i = 0; i < numVertices; i++) Selected[i] = 0; //Incializamos el array de vértices seleccionados
+
+    /* ALGORITMO DE PRIM */
+
+    //Iniciamos el algortimo con el primer vértice
+    Selected[0] = 1;
+
+    //Mientras no hayamos seleccionado todos los vértices
+    while(numArcos < numVertices - 1){
+        //Inicializamos el minimo a infinito
+        float minimo = INF;
+        int vx = 0, vy = 0;
+
+        //Busco el arco x-y con valor minimo, con Selected(vx) = 1 y Selected(vy) = 0
+        for (i = 0 ; i < numVertices; i++){
+            if(Selected[i] == 1){
+                for(j = 0; j<numVertices; j++){
+                    if(Selected[j] != 1){
+                        //Si son adyacentes por autopista y carretera, comprobamos cual es menor
+                        if(son_adyacentes_autopista(G,i,j) != 0 && son_adyacentes_carretera(G,i,j) != 0){
+                            //Si son adyacentes por autopista, comprobamos si es menor que el minimo
+                            if(son_adyacentes_autopista(G,i,j) * factorA < minimo){
+                                minimo = son_adyacentes_autopista(G,i,j) * factorA;
+                                vx = i;
+                                vy = j;
+                                strcpy(tipo, "==");
+                            }
+                            //Si son adyacentes por carretera, comprobamos si es menor que el minimo
+                            if(son_adyacentes_carretera(G,i,j) * factorC < minimo){
+                                minimo = son_adyacentes_carretera(G,i,j) * factorC;
+                                vx = i;
+                                vy = j;
+                                strcpy(tipo, "--");
+                            }
+                        }
+                        //Si son adyacentes por autopista, comprobamos si es menor que el minimo
+                        else if(son_adyacentes_autopista(G,i,j) != 0){
+                            if(son_adyacentes_autopista(G,i,j) * factorA < minimo){
+                                minimo = son_adyacentes_autopista(G,i,j) * factorA;
+                                vx = i;
+                                vy = j;
+                                strcpy(tipo, "==");
+                            }
+                        }
+                        //Si son adyacentes por carretera, comprobamos si es menor que el minimo
+                        else if(son_adyacentes_carretera(G,i,j) != 0){
+                            if(son_adyacentes_carretera(G,i,j) * factorC < minimo){
+                                minimo = son_adyacentes_carretera(G,i,j) * factorC;
+                                vx = i;
+                                vy = j;
+                                strcpy(tipo, "--");
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        //Vx-vy es el arco con valor minimo que añade vy al conjunto de vértices seleccionados
+        Selected[vy] = 1;
+        numArcos++;
+        //Imprimimos el arco
+        printf("%-10s %-5s %-10s : %10.2f horas\n", array_vertices(G)[vx].nombrePoblacion, tipo, array_vertices(G)[vy].nombrePoblacion, minimo);
+        //Sumamos la distancia al total
+        distanciaTotal += minimo;
+    }
+
+    printf("Tiempo del arbol de expansion de coste minimo: %.2f horas\n", distanciaTotal);
+    //Liberamos memoria
+    free(tipo);
+}

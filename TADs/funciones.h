@@ -57,6 +57,12 @@ void actualizar_archivo(grafo G, int argc , char ** argv);
  */
 void Floyd_Warshall (grafo G, char opcion);
 
+/**
+ * Función que la minima ruta de conexion para que todas las ciudades esten conectadas
+ * @param G - Grafo
+ */
+void Prim(grafo G);
+
 
 #endif	/* FUNCIONES_H */
 
