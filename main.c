@@ -4,6 +4,10 @@
 
 /*
  * Programa que muestra el uso del TAD grafo de números enteros
+ * @Author: Pablo Seijo García
+ * @Date: 12 nov 2023
+ * @Version: 1.0
+ * @Company: USC (University of Santiago de Compostela)
  */
 
 int main(int argc, char** argv) {
@@ -78,6 +82,7 @@ int main(int argc, char** argv) {
                 printf("Opción equivocada\n");
                 break;
         }
+
     } while (opcion != 's');
 
     //Actualizo el archivo con los datos del grafo
