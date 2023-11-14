@@ -7,7 +7,7 @@ This program, developed by Pablo Seijo García at the University of Santiago de 
 ## Features 🛠️
 
 - **Node Management** 📊: Facilitates the addition, removal, and querying of nodes.
-- **Edge Management** 🌉: Allows establishing relationships between nodes with options for weighted or unweighted edges.
+- **Edge Management** 🌉: Allows establishing relationships between nodes with options for weighted.
 - **Pathfinding** 🚀: Implements algorithms like Floyd-Warshall for finding the shortest, fastest, or most economical paths.
 - **Minimum Spanning Tree** 🌳: Includes Prim's algorithm to find the minimum infrastructure of connections to keep cities connected.
 - **Interactive Console** 🖥️: User-friendly console interface for real-time graph manipulation and analysis.
