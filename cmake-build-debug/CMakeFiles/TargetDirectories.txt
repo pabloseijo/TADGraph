@@ -1,3 +1,0 @@
-/Users/pabloseijo/CLionProjects/AED/Practica4/cmake-build-debug/CMakeFiles/Practica4.dir
-/Users/pabloseijo/CLionProjects/AED/Practica4/cmake-build-debug/CMakeFiles/edit_cache.dir
-/Users/pabloseijo/CLionProjects/AED/Practica4/cmake-build-debug/CMakeFiles/rebuild_cache.dir
